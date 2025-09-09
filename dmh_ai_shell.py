@@ -6,9 +6,33 @@ import threading
 import sys
 import shlex
 from pathlib import Path
+import platform
+from colorama import init, Fore, Style
+
+# Initialize colorama (Windows)
+init(autoreset=True)
 
 CONFIG_FILE = Path.home() / ".ai_shell_config.json"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+
+
+# -----------------------------
+# Color output
+# -----------------------------
+def print_ai_box(text: str, color=Fore.CYAN):
+    """
+    Prints text inside a box with colored border for AI output.
+    """
+    lines = text.splitlines() or [""]
+
+    # Determine box width
+    width = max(len(line) for line in lines)
+    horizontal = "─" * (width + 2)
+
+    print(color + "┌" + horizontal + "┐")
+    for line in lines:
+        print(color + "│ " + line.ljust(width) + " │")
+    print(color + "└" + horizontal + "┘" + Style.RESET_ALL)
 
 
 # -----------------------------
@@ -26,6 +50,22 @@ def load_api_key() -> str:
     api_key = input("🔑 Enter your OpenRouter API Key: ").strip()
     save_api_key(api_key)
     return api_key
+
+
+
+# -----------------------------
+# het the env of the system
+# -----------------------------
+def get_os():
+    os_name = platform.system()
+    if os_name == "Windows":
+        return "Windows"
+    elif os_name == "Linux":
+        return "Linux"
+    elif os_name == "Darwin":
+        return "MacOS"
+    else:
+        return os_name
 
 
 def save_api_key(key: str):
@@ -62,11 +102,35 @@ def call_openrouter(prompt: str) -> str:
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
     }
+        
+    user_os = get_os()
+
+    SYSTEM_PROMPT = """
+        You are DMH AI Shell Assistant, an expert command-line helper and AI shell assistant.
+        The user is running {user_os}. You should ONLY suggest commands, syntax, and examples
+        that work for {user_os}. 
+
+        Rules:
+        1. Always interpret the user's prompt in the context of the command-line environment.
+        2. If given shell output, analyze it carefully and suggest practical next steps.
+        3. When suggesting commands, always prioritize safety and avoid destructive actions.
+        4. Explain errors clearly and provide concise examples or fixes when possible.
+        5. Do not include irrelevant information; keep responses short but informative.
+        6. When the user uses ':ai -reply +', consider the previous output as context.
+        7. Assume the environment is {user_os}, and provide platform relevant solutions .
+        8. Avoid guessing; only suggest commands or fixes that are likely to work.
+
+        Your response format:
+        - Short explanation (if applicable)
+        - Command(s) or steps (if needed)
+        - Optional notes for safety or context
+        """
+
 
     data = {
         "model": "openai/gpt-4o-mini",
         "messages": [
-            {"role": "system", "content": "You are an AI shell assistant."},
+            {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": prompt}
         ],
     }
@@ -160,7 +224,7 @@ def repl():
             user_prompt = line[len(":ai -reply + "):]
             combined_prompt = f"Previous output:\n{last_output}\n\nNew prompt:\n{user_prompt}"
             reply = call_openrouter(combined_prompt)
-            print(f"[AI] {reply}")
+            print_ai_box(reply, color=Fore.CYAN)
             last_output = reply  # update last output with AI response
             continue
 
@@ -168,7 +232,7 @@ def repl():
         if line.startswith(":ai "):
             prompt = line[len(":ai "):]
             reply = call_openrouter(prompt)
-            print(f"[AI] {reply}")
+            print_ai_box(reply, color=Fore.CYAN)
             last_output = reply  # update last output
             continue
 
