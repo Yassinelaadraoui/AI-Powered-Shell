@@ -41,6 +41,7 @@ def print_ai_box(text: str, model: str, color=Fore.CYAN):
             print(color + "│ " + line.ljust(width) + " │")
     print(color + "└" + horizontal + "┘" + Style.RESET_ALL)
 
+
 # -----------------------------
 # CONFIG HANDLING
 # -----------------------------
@@ -166,6 +167,30 @@ def call_openrouter(prompt: str, model: str, api_key: str) -> tuple[str, str]:
         return f"⚠️ Error calling OpenRouter: {e}", model
 
 
+
+
+def print_creator_info():
+    """Display creator contact information in a nice format."""
+    creator_info = """
+👨‍💻 DMH AI Shell - Created by Yassine Laadraoui
+
+📧 Email:    yassinelaadraoui@gmail.com
+💼 LinkedIn: https://www.linkedin.com/in/yassinelaadraoui/
+🐙 GitHub:   https://github.com/Yassinelaadraoui/AI-Powered-Shell
+
+Feel free to reach out for questions, suggestions, or contributions!
+    """
+    
+    lines = creator_info.strip().splitlines()
+    width = max(len(line) for line in lines)
+    horizontal = "─" * (width + 2)
+    
+    print(Fore.GREEN + "┌" + horizontal + "┐")
+    for line in lines:
+        print(Fore.GREEN + "│ " + line.ljust(width) + " │")
+    print(Fore.GREEN + "└" + horizontal + "┘" + Style.RESET_ALL)
+
+
 # -----------------------------
 # MODEL PARSING
 # -----------------------------
@@ -267,6 +292,7 @@ def repl():
     print("   :setkey <key>                   → Set new API key")
     print("   :showmodel                      → Show current default model")
     print("   :setmodel <model>               → Set new default model")
+    print("   :creator                        → Show creator contact information")
     print("   exit                            → Quit")
     print("="*50)
     print(f"Current default model: {config['DEFAULT_MODEL']}")
@@ -365,6 +391,11 @@ def repl():
                 print(f"✅ Default model updated to: {new_model}")
             else:
                 print("⚠️ No model provided.")
+            continue
+
+        # Show creator contact information
+        if line.strip() == ":creator":
+            print_creator_info()
             continue
 
         # Run shell command and capture output
