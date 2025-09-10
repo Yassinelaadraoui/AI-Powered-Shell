@@ -168,7 +168,9 @@ def call_openrouter(prompt: str, model: str, api_key: str) -> tuple[str, str]:
 
 
 
-
+# -----------------------------
+# print_creator_info CALL
+# -----------------------------
 def print_creator_info():
     """Display creator contact information in a nice format."""
     creator_info = """
