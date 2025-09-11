@@ -19,12 +19,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install PyGithub requests
+          pip install Odin-code-review-github-ai-partner==0.1.0
 
-      - name: Run AI Code Review
+      - name: Run AI Code Review CLI
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}       # or your PAT secret
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}       
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL: ${{ secrets.MODEL }} 
         run: |
-          python auto_code_review.py <<< "${{ github.repository }}"
+          Odin-code-review-github-ai-partner --repo "${{ github.repository }}"
