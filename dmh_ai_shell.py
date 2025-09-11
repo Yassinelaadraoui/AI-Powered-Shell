@@ -289,7 +289,7 @@ def repl():
                 print(f"⚙️ Running: {command}")
                 run_command(command)
             last_output = reply
-
+print('test')
 # -----------------------------
 # ENTRY POINT
 # -----------------------------
