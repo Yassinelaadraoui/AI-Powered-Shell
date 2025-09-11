@@ -1,0 +1,30 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  ai-code-review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install Odin-code-review-github-ai-partner==0.1.0
+
+      - name: Run AI Code Review CLI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}       
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ secrets.MODEL }} 
+        run: |
+          Odin-code-review-github-ai-partner --repo "${{ github.repository }}"
